@@ -9,7 +9,7 @@
         android:layout_height="match_parent">
         <TextView
             android:id="@+id/caption"
-            android:text="@string/menu_camera_label" android:layout_width="wrap_content"
+            android:text="@string/menu_label" android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <ListView
             android:id="@android:id/list"
@@ -19,5 +19,13 @@
             android:dividerHeight="2sp"
             android:paddingTop="20dp"
             />
+        <Button
+            android:id="@+id/button_create_task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="10dip"
+            android:text="@string/lbl_new_task" >
+        </Button>
     </RelativeLayout>
 </RelativeLayout>

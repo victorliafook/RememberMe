@@ -1,8 +1,5 @@
 package com.foftware.rememberme;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -11,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 public class AlarmNotificationReceiver extends BroadcastReceiver {
     // Notification ID to allow for future updates

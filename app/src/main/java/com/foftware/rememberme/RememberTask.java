@@ -9,6 +9,7 @@ public class RememberTask {
     private long id;
     private String description;
     private Date time;
+    private Boolean alarmOn;
 
 
     public long getId() {
@@ -33,5 +34,13 @@ public class RememberTask {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public Boolean getAlarm(){
+        return alarmOn;
+    }
+
+    public void setAlarm(Boolean alarmOn){
+        this.alarmOn = alarmOn;
     }
 }

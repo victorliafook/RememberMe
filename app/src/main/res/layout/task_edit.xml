@@ -2,16 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="1">
+    android:weightSum="1"
+    android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Your brand new task"
-        android:id="@+id/lblCrud"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.09" />
 
     <TextView
         android:layout_width="115dp"
@@ -62,13 +55,7 @@
                 android:id="@+id/lblAlarm"
                 android:layout_weight="0.03"
                 android:layout_gravity="center_horizontal"
-                android:layout_column="20" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical">
+                android:layout_column="0" />
 
             <TextView
                 android:layout_width="31dp"
@@ -77,27 +64,32 @@
                 android:text="Off"
                 android:id="@+id/lblAlarmOff"
                 android:layout_weight="0.06"
-                android:layout_column="6"
-                android:layout_span="2" />
+                android:layout_column="1" />
 
             <Switch
-                android:layout_width="wrap_content"
+                android:layout_width="31dp"
                 android:layout_height="wrap_content"
-                android:text="New Switch"
                 android:id="@+id/swcAlarm"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="0.06"
-                android:layout_column="16"
+                android:layout_column="2"
                 android:checked="true" />
 
             <TextView
-                android:layout_width="42dp"
+                android:layout_width="31dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:text="On"
                 android:id="@+id/lblAlarmOn"
                 android:layout_weight="0.06"
-                android:layout_column="17" />
+                android:layout_column="3" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+
         </TableRow>
 
         <TableRow

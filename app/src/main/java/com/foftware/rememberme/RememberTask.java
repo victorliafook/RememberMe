@@ -1,5 +1,8 @@
 package com.foftware.rememberme;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Date;
 
 /**
@@ -42,5 +45,23 @@ public class RememberTask {
 
     public void setAlarm(Boolean alarmOn){
         this.alarmOn = alarmOn;
+    }
+
+    public String toJSON(){
+
+        JSONObject jsonObject= new JSONObject();
+        try {
+            jsonObject.put("id", getId());
+            jsonObject.put("time", getTime());
+            jsonObject.put("description", getDescription());
+            jsonObject.put("alarmOn", getAlarm());
+
+            return jsonObject.toString();
+        } catch (JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return "";
+        }
+
     }
 }

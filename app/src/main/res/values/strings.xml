@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">RememberMe</string>
     <string name="menu_label">RememberMe</string>
+    <string name="menu_selectday_label">Select a day</string>
     <string name="action_settings">Settings</string>
     <string name="lbl_new_task">Create new task</string>
+    <string name="lbl_edit_task">Edit your task</string>
     <string name="lbl_add">Add</string>
     <string name="lbl_cancel">Cancel</string>
     <string name="lbl_save">Save it</string>

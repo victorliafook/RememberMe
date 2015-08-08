@@ -1,5 +1,6 @@
 package com.foftware.rememberme;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -11,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 
 /**
@@ -20,10 +22,15 @@ public class RememberTaskDAO {
     private SQLiteDatabase database;
     private BdCore dbHelper;
     private String[] fields = { BdCore.TASK_ID,
-            BdCore.TASK_DESCRIPTION, BdCore.TASK_TIME };
+            BdCore.TASK_DESCRIPTION, BdCore.TASK_TIME, BdCore.TASK_ALARM };
+    private TimeZone systemTimeZone;
+    private SimpleDateFormat dateFormat;
 
     public RememberTaskDAO(Context context){
         setDbHelper(new BdCore(context));
+        setSystemTimeZone(TimeZone.getDefault());
+        dateFormat = new SimpleDateFormat(BdCore.TIME_PATTERN);
+        dateFormat.setTimeZone(getSystemTimeZone());
     }
 
     public void open() throws SQLException {
@@ -34,11 +41,28 @@ public class RememberTaskDAO {
         dbHelper.close();
     }
 
-    public void deleteTask(RememberTask task){
-        database.delete(BdCore.TASKS_TABLE, BdCore.TASK_ID + "=" + task.getId(), null);
+    public void deleteTask(Long taskId){
+        database.delete(BdCore.TASKS_TABLE, BdCore.TASK_ID + "=" + taskId, null);
     }
 
-    public List<RememberTask> getAllComments() {
+    public void insertTask(RememberTask task) {
+
+        Date time = task.getTime();
+
+        ContentValues values = new ContentValues();
+        values.put(BdCore.TASK_TIME, dateFormat.format(time));
+        values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
+        values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
+        long insertId = database.insert(BdCore.TASKS_TABLE, null,
+                values);
+        Cursor cursor = database.query(BdCore.TASKS_TABLE,
+                fields, BdCore.TASK_ID + " = " + insertId, null,
+                null, null, null);
+        cursor.moveToFirst();
+        cursor.close();
+       }
+
+    public List<RememberTask> getAllTasks() {
         List<RememberTask> tasks = new ArrayList<RememberTask>();
 
         Cursor cursor = database.query(BdCore.TASKS_TABLE,
@@ -61,13 +85,14 @@ public class RememberTaskDAO {
         task.setDescription(cursor.getString(cursor.getColumnIndex(BdCore.TASK_DESCRIPTION)));
 
         Date date;
-        DateFormat format = new SimpleDateFormat(BdCore.TIME_PATTERN);
+
         try {
-            date = format.parse(cursor.getString(cursor.getColumnIndex(BdCore.TASK_TIME)));
+            date = getDateFormat().parse(cursor.getString(cursor.getColumnIndex(BdCore.TASK_TIME)));
         }catch(ParseException ex){
             date = new Date();
         }
         task.setTime(date);
+        task.setAlarm((cursor.getInt(cursor.getColumnIndex(BdCore.TASK_ALARM)) == 1) ? true : false);
         return task;
     }
 
@@ -94,5 +119,21 @@ public class RememberTaskDAO {
 
     public void setFields(String[] fields) {
         this.fields = fields;
+    }
+
+    public TimeZone getSystemTimeZone() {
+        return systemTimeZone;
+    }
+
+    public void setSystemTimeZone(TimeZone systemTimeZone) {
+        this.systemTimeZone = systemTimeZone;
+    }
+
+    public SimpleDateFormat getDateFormat() {
+        return dateFormat;
+    }
+
+    public void setDateFormat(SimpleDateFormat dateFormat) {
+        this.dateFormat = dateFormat;
     }
 }

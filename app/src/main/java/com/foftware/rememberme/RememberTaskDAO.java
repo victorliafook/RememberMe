@@ -62,6 +62,23 @@ public class RememberTaskDAO {
         cursor.close();
        }
 
+    public void updateTask(RememberTask task) {
+
+        Date time = task.getTime();
+
+        ContentValues values = new ContentValues();
+        values.put(BdCore.TASK_TIME, dateFormat.format(time));
+        values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
+        values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
+        long rowsAffected = database.update(BdCore.TASKS_TABLE, values, BdCore.TASK_ID + "=" + (int)task.getId(), null );
+
+        Cursor cursor = database.query(BdCore.TASKS_TABLE,
+                fields, BdCore.TASK_ID + " = " + task.getId(), null,
+                null, null, null);
+        cursor.moveToFirst();
+        cursor.close();
+    }
+
     public List<RememberTask> getAllTasks() {
         List<RememberTask> tasks = new ArrayList<RememberTask>();
 

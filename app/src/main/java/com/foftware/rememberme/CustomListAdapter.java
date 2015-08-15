@@ -46,7 +46,7 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
         Switch swcAlarm = (Switch) rowView.findViewById(R.id.switchAlarm);
 
         setDate(tasks.get(position).getTime());
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         sdf.setTimeZone(TimeZone.getDefault());
 
         txtDesc.setText(tasks.get(position).getDescription());

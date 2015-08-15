@@ -125,7 +125,9 @@ public class MainActivity extends ListActivity implements
 
         switch (contextOptions.valueOf(item.getTitle().toString())){
             case Edit:
-                new OnClickListenerCreateTask().onClick(itemView);
+                task = adapter.getItem(index);
+                //new OnClickListenerCreateTask().onClick(itemView);
+                new RememberTaskFormDialog(itemView, task, datasource);
                 break;
             case Delete:
                 if (getListAdapter().getCount() > 0) {

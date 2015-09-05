@@ -13,15 +13,18 @@ public class BdCore extends SQLiteOpenHelper{
     public static final String TASKS_TABLE = "tasks";
     public static final String TASK_ID = "_id";
     public static final String TASK_DESCRIPTION = "txt_description";
+    public static final String TASK_DATE = "i_date";
     public static final String TASK_TIME = "i_time";
     public static final String TASK_ALARM = "i_alarm";
-    public static final String TIME_PATTERN = "yyyy-MM-dd HH:mm";
-    private static final int VERSION = 2;
+    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    public static final String TIME_PATTERN = "HH:mm";
+    private static final int VERSION = 3;
 
     // Database creation statement
     private static final String DATABASE_CREATE = "create table "
             + TASKS_TABLE + "(" + "_id"
             + " integer primary key autoincrement, " + TASK_DESCRIPTION
+            + " text not null," + TASK_DATE
             + " text not null," + TASK_TIME
             + " text not null, " + TASK_ALARM
             + " integer not null"

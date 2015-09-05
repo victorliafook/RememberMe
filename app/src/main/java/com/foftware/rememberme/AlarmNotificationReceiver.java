@@ -14,13 +14,12 @@ import java.util.Date;
 
 public class AlarmNotificationReceiver extends BroadcastReceiver {
     // Notification ID to allow for future updates
-    private static final int MY_NOTIFICATION_ID = 1;
-    private static final String TAG = "DAYLY";
 
+    private static final int MY_NOTIFICATION_ID = 1;
     // Notification Text Elements
     private final CharSequence tickerText = "Are you forgetting something?";
-    private final CharSequence contentTitle = "MyDailySelfie remembers YOU";
-    private final CharSequence contentText = "Time to take a picture!!";
+    private final CharSequence contentTitle = "RememberMe remembers YOU";
+    private final CharSequence contentText = "...";
 
     // Notification Action Elements
     private Intent mNotificationIntent;
@@ -28,7 +27,7 @@ public class AlarmNotificationReceiver extends BroadcastReceiver {
 
     // Notification Sound and Vibration on Arrival
     private final Uri soundURI = Uri
-            .parse("android.resource://com.foftware.Mydailyselfie/"
+            .parse("android.resource://com.foftware.rememberme/"
                     + R.raw.alarm_rooster);
     private final long[] mVibratePattern = { 0, 200, 200, 300 };
 
@@ -59,7 +58,7 @@ public class AlarmNotificationReceiver extends BroadcastReceiver {
                 notificationBuilder.build());
 
         // Log occurence of notify() call
-        Log.i(TAG, "Sending notification at:" + DateFormat.getDateTimeInstance().format(new Date()));
+        Log.i(Util.debugTag, "Sending notification at:" + DateFormat.getDateTimeInstance().format(new Date()));
 
     }
 }

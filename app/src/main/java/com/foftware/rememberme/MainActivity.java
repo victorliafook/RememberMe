@@ -34,7 +34,8 @@ public class MainActivity extends ListActivity implements
         TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     private RememberTaskDAO datasource;
     View editView;
-    private TextView txtDateTime;
+    private TextView txtDate;
+    private TextView txtTime;
     private int mMinute;
     private int mHour;
     private int mDay;
@@ -89,8 +90,7 @@ public class MainActivity extends ListActivity implements
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mHour = hourOfDay;
         mMinute = minute;
-        txtDateTime.setText(new StringBuilder().append(txtDateTime.getText()).append(" ").append(Util.padInt(mHour)).append(":")
-                .append(Util.padInt(mMinute)));
+        txtTime.setText(new StringBuilder().append(Util.padInt(mHour)).append(":").append(Util.padInt(mMinute)));
 
     }
 
@@ -98,7 +98,7 @@ public class MainActivity extends ListActivity implements
         mDay = dayOfMonth;
         mMonth = monthOfYear;
         mYear = year;
-        txtDateTime.setText(new StringBuilder().append(mYear).append("-").append(Util.padInt(mMonth)).append("-").append(Util.padInt(mDay)));
+        txtDate.setText(new StringBuilder().append(mYear).append("-").append(Util.padInt(mMonth)).append("-").append(Util.padInt(mDay)));
 
 
     }
@@ -172,24 +172,30 @@ public class MainActivity extends ListActivity implements
     }
 
     public void showDatePickerDialog(View v) {
-        txtDateTime = (EditText) v;
+        txtDate = (EditText) v;
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(this.getFragmentManager(), "datePicker");
     }
 
+    public void showTimePickerDialog(View v) {
+        txtTime = (EditText) v;
+        DialogFragment newFragment = new TimePickerFragment();
+        newFragment.show(this.getFragmentManager(), "timePicker");
+    }
 
     @SuppressLint("ValidFragment")
     public class DatePickerFragment extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
 
-        private EditText txtDateTime;
+       // private EditText txtDateTime;
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+           /* LayoutInflater inflater = getActivity().getLayoutInflater();
             View view = inflater.inflate(R.layout.task_edit, null);
             txtDateTime = (EditText) view.findViewById(R.id.txtTime);
+            */
             // Use the current date as the default date in the picker
             final Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);
@@ -200,16 +206,12 @@ public class MainActivity extends ListActivity implements
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
 
-        public void showTimePickerDialog(View v) {
-            DialogFragment newFragment = new TimePickerFragment();
 
-            newFragment.show(getActivity().getFragmentManager(), "timePicker");
-        }
 
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
            ((DatePickerDialog.OnDateSetListener) getActivity()).onDateSet(view, year, month + 1, day);
-            showTimePickerDialog(view);
+
         }
 
     }
@@ -217,14 +219,14 @@ public class MainActivity extends ListActivity implements
     public class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
 
-        EditText txtDateTime;
+        //EditText txtDateTime;
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+          /*  LayoutInflater inflater = getActivity().getLayoutInflater();
             View view = inflater.inflate(R.layout.task_edit, null);
             txtDateTime = (EditText) view.findViewById(R.id.txtTime);
-
+            */
             // Use the current time as the default values for the picker
             final Calendar c = Calendar.getInstance();
             int hour = c.get(Calendar.HOUR_OF_DAY);

@@ -11,6 +11,7 @@ import java.util.Date;
 public class RememberTask {
     private long id;
     private String description;
+    private Date date;
     private Date time;
     private Boolean alarmOn;
 
@@ -31,6 +32,14 @@ public class RememberTask {
         this.description = description;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
     public Date getTime() {
         return time;
     }
@@ -38,6 +47,7 @@ public class RememberTask {
     public void setTime(Date time) {
         this.time = time;
     }
+
 
     public Boolean getAlarm(){
         return alarmOn;
@@ -52,6 +62,7 @@ public class RememberTask {
         JSONObject jsonObject= new JSONObject();
         try {
             jsonObject.put("id", getId());
+            jsonObject.put("date", getDate());
             jsonObject.put("time", getTime());
             jsonObject.put("description", getDescription());
             jsonObject.put("alarmOn", getAlarm());

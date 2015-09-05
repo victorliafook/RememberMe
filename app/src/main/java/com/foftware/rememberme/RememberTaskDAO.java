@@ -22,15 +22,18 @@ public class RememberTaskDAO {
     private SQLiteDatabase database;
     private BdCore dbHelper;
     private String[] fields = { BdCore.TASK_ID,
-            BdCore.TASK_DESCRIPTION, BdCore.TASK_TIME, BdCore.TASK_ALARM };
+            BdCore.TASK_DESCRIPTION, BdCore.TASK_DATE, BdCore.TASK_TIME, BdCore.TASK_ALARM };
     private TimeZone systemTimeZone;
     private SimpleDateFormat dateFormat;
+    private SimpleDateFormat timeFormat;
 
     public RememberTaskDAO(Context context){
         setDbHelper(new BdCore(context));
         setSystemTimeZone(TimeZone.getDefault());
-        dateFormat = new SimpleDateFormat(BdCore.TIME_PATTERN);
+        dateFormat = new SimpleDateFormat(BdCore.DATE_PATTERN);
         dateFormat.setTimeZone(getSystemTimeZone());
+
+        timeFormat = new SimpleDateFormat(BdCore.TIME_PATTERN);
     }
 
     public void open() throws SQLException {
@@ -46,11 +49,12 @@ public class RememberTaskDAO {
     }
 
     public void insertTask(RememberTask task) {
-
+        Date date = task.getDate();
         Date time = task.getTime();
 
         ContentValues values = new ContentValues();
-        values.put(BdCore.TASK_TIME, dateFormat.format(time));
+        values.put(BdCore.TASK_DATE, dateFormat.format(date));
+        values.put(BdCore.TASK_TIME, timeFormat.format(time));
         values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
         values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
         long insertId = database.insert(BdCore.TASKS_TABLE, null,
@@ -63,11 +67,12 @@ public class RememberTaskDAO {
        }
 
     public void updateTask(RememberTask task) {
-
+        Date date = task.getDate();
         Date time = task.getTime();
 
         ContentValues values = new ContentValues();
-        values.put(BdCore.TASK_TIME, dateFormat.format(time));
+        values.put(BdCore.TASK_DATE, dateFormat.format(date));
+        values.put(BdCore.TASK_TIME, timeFormat.format(time));
         values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
         values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
         long rowsAffected = database.update(BdCore.TASKS_TABLE, values, BdCore.TASK_ID + "=" + (int)task.getId(), null );
@@ -96,19 +101,42 @@ public class RememberTaskDAO {
         return tasks;
     }
 
+    /*TODO: fazer direito, retornando so com o date do dia*/
+    public List<RememberTask> getTodaysTasks() {
+        List<RememberTask> tasks = new ArrayList<RememberTask>();
+
+        Cursor cursor = database.query(BdCore.TASKS_TABLE,
+                fields, null, null, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            RememberTask task = cursorToTask(cursor);
+            tasks.add(task);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+        return tasks;
+    }
+
     private RememberTask cursorToTask(Cursor cursor) {
         RememberTask task = new RememberTask();
         task.setId(cursor.getLong(cursor.getColumnIndex(BdCore.TASK_ID)));
         task.setDescription(cursor.getString(cursor.getColumnIndex(BdCore.TASK_DESCRIPTION)));
 
         Date date;
+        Date time;
 
         try {
-            date = getDateFormat().parse(cursor.getString(cursor.getColumnIndex(BdCore.TASK_TIME)));
+            date = getDateFormat().parse(cursor.getString(cursor.getColumnIndex(BdCore.TASK_DATE)));
+            time = getTimeFormat().parse(cursor.getString(cursor.getColumnIndex(BdCore.TASK_TIME)));
         }catch(ParseException ex){
             date = new Date();
+            time = new Date();
         }
-        task.setTime(date);
+
+        task.setDate(date);
+        task.setTime(time);
         task.setAlarm((cursor.getInt(cursor.getColumnIndex(BdCore.TASK_ALARM)) == 1) ? true : false);
         return task;
     }
@@ -152,5 +180,13 @@ public class RememberTaskDAO {
 
     public void setDateFormat(SimpleDateFormat dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    public SimpleDateFormat getTimeFormat() {
+        return timeFormat;
+    }
+
+    public void setTimeFormat(SimpleDateFormat timeFormat) {
+        this.timeFormat = timeFormat;
     }
 }

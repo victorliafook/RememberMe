@@ -8,12 +8,13 @@ import java.util.Date;
 /**
  * Created by Victor on 15/07/2015.
  */
-public class RememberTask {
+public class RememberTask implements Comparable<RememberTask>{
     private long id;
     private String description;
     private Date date;
     private Date time;
     private Boolean alarmOn;
+    private Boolean done;
 
 
     public long getId() {
@@ -57,6 +58,14 @@ public class RememberTask {
         this.alarmOn = alarmOn;
     }
 
+    public Boolean getDone() {
+        return done;
+    }
+
+    public void setDone(Boolean done) {
+        this.done = done;
+    }
+
     public String toJSON(){
 
         JSONObject jsonObject= new JSONObject();
@@ -65,6 +74,7 @@ public class RememberTask {
             jsonObject.put("date", getDate());
             jsonObject.put("time", getTime());
             jsonObject.put("description", getDescription());
+            jsonObject.put("done", getDone());
             jsonObject.put("alarmOn", getAlarm());
 
             return jsonObject.toString();
@@ -75,4 +85,12 @@ public class RememberTask {
         }
 
     }
+
+    @Override
+    public int compareTo(RememberTask otherTask){
+        int last = getDate().compareTo(otherTask.getDate());
+        return last == 0 ? getTime().compareTo(otherTask.getTime()) : last;
+    }
+
+
 }

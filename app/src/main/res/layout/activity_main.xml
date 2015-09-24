@@ -10,6 +10,34 @@
         android:layout_height="match_parent"
 
         >
+        <TextView
+            android:id="@+id/txtNoTasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/msgNoTasks"
+            android:padding="5dp"
+            android:textSize="18sp"
+            android:visibility="invisible"
+            android:textColor="#ff686a68"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:gravity="center"
+            >
+        </TextView>
+        <TextView
+            android:id="@+id/txtCurrentDate"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="140sp"
+
+            android:textColor="#fff8fbf8"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingTop="10dp">
+        </TextView>
         <ListView
             android:id="@android:id/list"
             android:layout_width="match_parent"
@@ -17,9 +45,8 @@
             android:divider="#ECECEC"
             android:dividerHeight="2sp"
 
-            android:layout_above="@+id/button_create_task"
 
-            />
+            android:layout_marginBottom="50dp" />
         <Button
             android:id="@+id/button_create_task"
             android:layout_width="match_parent"

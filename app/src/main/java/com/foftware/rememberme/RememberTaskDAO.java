@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -22,7 +23,7 @@ public class RememberTaskDAO {
     private SQLiteDatabase database;
     private BdCore dbHelper;
     private String[] fields = { BdCore.TASK_ID,
-            BdCore.TASK_DESCRIPTION, BdCore.TASK_DATE, BdCore.TASK_TIME, BdCore.TASK_ALARM };
+            BdCore.TASK_DESCRIPTION, BdCore.TASK_DATE, BdCore.TASK_TIME, BdCore.TASK_ALARM, BdCore.TASK_DONE };
     private TimeZone systemTimeZone;
     private SimpleDateFormat dateFormat;
     private SimpleDateFormat timeFormat;
@@ -57,6 +58,7 @@ public class RememberTaskDAO {
         values.put(BdCore.TASK_TIME, timeFormat.format(time));
         values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
         values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
+        values.put(BdCore.TASK_DONE, (task.getDone().booleanValue() == true) ? 1 : 0);
         long insertId = database.insert(BdCore.TASKS_TABLE, null,
                 values);
         Cursor cursor = database.query(BdCore.TASKS_TABLE,
@@ -75,6 +77,7 @@ public class RememberTaskDAO {
         values.put(BdCore.TASK_TIME, timeFormat.format(time));
         values.put(BdCore.TASK_DESCRIPTION, task.getDescription());
         values.put(BdCore.TASK_ALARM, (task.getAlarm().booleanValue() == true) ? 1 : 0);
+        values.put(BdCore.TASK_DONE, (task.getDone().booleanValue() == true) ? 1 : 0);
         long rowsAffected = database.update(BdCore.TASKS_TABLE, values, BdCore.TASK_ID + "=" + (int)task.getId(), null );
 
         Cursor cursor = database.query(BdCore.TASKS_TABLE,
@@ -84,7 +87,7 @@ public class RememberTaskDAO {
         cursor.close();
     }
 
-    public List<RememberTask> getAllTasks() {
+    public List<RememberTask> getAllTasks(Boolean order) {
         List<RememberTask> tasks = new ArrayList<RememberTask>();
 
         Cursor cursor = database.query(BdCore.TASKS_TABLE,
@@ -98,6 +101,34 @@ public class RememberTaskDAO {
         }
         // make sure to close the cursor
         cursor.close();
+
+        if(order){
+            Collections.sort(tasks);
+        }
+
+        return tasks;
+    }
+
+    public List<RememberTask> getTasksByDate(Date date){
+        List<RememberTask> tasks = new ArrayList<RememberTask>();
+
+        if(date == null) {
+            tasks = getAllTasks(true);
+            return tasks;
+        }
+
+        Cursor cursor = database.query(BdCore.TASKS_TABLE,
+                fields, BdCore.TASK_DATE + "= ?", new String[] {dateFormat.format(date)}, null, null, null);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            RememberTask task = cursorToTask(cursor);
+            tasks.add(task);
+            cursor.moveToNext();
+        }
+        // make sure to close the cursor
+        cursor.close();
+
         return tasks;
     }
 
@@ -138,6 +169,7 @@ public class RememberTaskDAO {
         task.setDate(date);
         task.setTime(time);
         task.setAlarm((cursor.getInt(cursor.getColumnIndex(BdCore.TASK_ALARM)) == 1) ? true : false);
+        task.setDone((cursor.getInt(cursor.getColumnIndex(BdCore.TASK_DONE)) == 1) ? true : false);
         return task;
     }
 

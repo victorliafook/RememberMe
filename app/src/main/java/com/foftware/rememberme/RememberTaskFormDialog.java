@@ -1,19 +1,30 @@
 package com.foftware.rememberme;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ListActivity;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,9 +40,18 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
     private View parentView;
     private View taskCrudView;
     private RememberTaskDAO datasource;
-    private AlarmManager mAlarmManager;
-    private Intent mNotificationReceiverIntent, mLoggerReceiverIntent;
-    private PendingIntent mNotificationReceiverPendingIntent, mLoggerReceiverPendingIntent;
+    private AlarmTask mAlarmTaskManager;
+
+    private RememberTask myTask;
+
+    View editView;
+    private TextView txtDate;
+    private TextView txtTime;
+    private int mMinute;
+    private int mHour;
+    private int mDay;
+    private int mMonth;
+    private int mYear;
 
     public RememberTaskFormDialog(View sourceView, RememberTask task, RememberTaskDAO datasource) {
             super(sourceView.getContext());
@@ -39,201 +59,293 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
             setDatasource(datasource);
             setTask(task);
             setParentView(sourceView);
+            myTask = task;
+            mAlarmTaskManager = ((MainActivity) getParentView().getContext()).getAlarmTaskManager();
 
+            sourceView.post(
+                new Runnable() {
+                    @Override
+                    public void run() {
 
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            taskCrudView = inflater.inflate(R.layout.task_edit,null,false);
+                        LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        taskCrudView = inflater.inflate(R.layout.task_edit,null,false);
 
-            final EditText editTextDate = (EditText) taskCrudView.findViewById(R.id.txtDate);
-            final EditText editTextTime = (EditText) taskCrudView.findViewById(R.id.txtTime);
-            final EditText editTextDesc = (EditText) taskCrudView.findViewById(R.id.txtDescription);
-            final Switch switchAlarm = (Switch) taskCrudView.findViewById(R.id.swcAlarm);
-            final RememberTask newTask = new RememberTask();
+                        final EditText editTextDate = (EditText) taskCrudView.findViewById(R.id.txtDate);
+                        final EditText editTextTime = (EditText) taskCrudView.findViewById(R.id.txtTime);
+                        final EditText editTextDesc = (EditText) taskCrudView.findViewById(R.id.txtDescription);
 
-            editTextDate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if(hasFocus){
-                        MainActivity mainActivity = (MainActivity) getParentView().getContext();
-                        mainActivity.showDatePickerDialog(editTextDate);
-                    }
-                }
-            });
+                        final Switch switchAlarm = (Switch) taskCrudView.findViewById(R.id.swcAlarm);
+                        final Switch switchDone = new Switch(getContext());
+                        final RememberTask newTask = new RememberTask();
 
-            editTextTime.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    if(hasFocus){
-                        MainActivity mainActivity = (MainActivity) getParentView().getContext();
-                        mainActivity.showTimePickerDialog(editTextTime);
-                    }
-                }
-            });
+                        /** ######################################################################### **/
+                        /** setting editTexts not editable therefore only accessible from the pickers **/
+                        /** ######################################################################### **/
+                        editTextDate.setKeyListener(null);
+                        editTextTime.setKeyListener(null);
 
-            //TESTAR
-            if(task.getId() > 0) {
-
-                editTextDate.setText(((TextView) sourceView.findViewById(R.id.date)).getText().toString());
-                editTextTime.setText(((TextView) sourceView.findViewById(R.id.time)).getText().toString());
-
-                editTextDesc.setText(((TextView) sourceView.findViewById(R.id.description)).getText());
-                switchAlarm.setChecked(((Switch) sourceView.findViewById(R.id.switchAlarm)).isChecked());
-
-                this.setView(taskCrudView);
-                this.setTitle(R.string.lbl_edit_task);
-                this.setPositiveButton(R.string.lbl_save,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                SimpleDateFormat sdfDate = getDatasource().getDateFormat();
-                                SimpleDateFormat sdfTime = getDatasource().getTimeFormat();
-                                Date time,date;
-
-                                try {
-                                    time = sdfTime.parse(editTextTime.getText().toString());
-                                    date =  sdfDate.parse(editTextDate.getText().toString());
-                                    getTask().setDate(date);
-                                    getTask().setTime(time);
-                                    getTask().setDescription(editTextDesc.getText().toString());
-                                    getTask().setAlarm(switchAlarm.isChecked());
-                                    updateTask(getTask(), getContext());
-                                    setAlarm(date, time);
-                                    dialog.cancel();
-                                } catch (ParseException e) {
-                                    //TODO
-                                    //in case of a invalid string
-                                    Log.i("mine", e.getMessage());
-                                }
+                        editTextDate.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick (View v) {
+                                showDatePickerDialog(editTextDate);
 
                             }
+                        });
 
-                        })
-                        .setNegativeButton(R.string.lbl_cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-
-                                })
-                        .show();
-            }else{
-                setParentView((View) getParentView().getParent());
-
-                this.setView(taskCrudView);
-                this.setTitle(R.string.lbl_new_task);
-                this.setPositiveButton(R.string.lbl_add,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                SimpleDateFormat sdfDate = getDatasource().getDateFormat();
-                                SimpleDateFormat sdfTime = getDatasource().getTimeFormat();
-                                Date time,date;
-                                try {
-                                    time = sdfTime.parse(editTextTime.getText().toString());
-                                    date =  sdfDate.parse(editTextDate.getText().toString());
-                                    newTask.setDate(date);
-                                    newTask.setTime(time);
-                                    newTask.setDescription(editTextDesc.getText().toString());
-                                    newTask.setAlarm(switchAlarm.isChecked());
-                                    saveNewTask(newTask, getContext());
-                                    setAlarm(date, time);
-                                    dialog.cancel();
-                                } catch (ParseException e) {
-                                    //TODO
-                                    //in case of a invalid string
-                                }
+                        editTextTime.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick (View v) {
+                                showTimePickerDialog(editTextTime);
 
                             }
+                        });
 
-                        })
-                        .setNegativeButton(R.string.lbl_cancel,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
+                        /** ################################################################**/
+                        /** id greater than zero means that we are editing an existing task **/
+                        /** ################################################################**/
+                        if(myTask.getId() > 0) {
 
-                                })
-                        .show();
 
-            }
+
+
+                            editTextDate.setText(((TextView) getParentView().findViewById(R.id.date)).getText().toString());
+                            editTextTime.setText(((TextView) getParentView().findViewById(R.id.time)).getText().toString());
+
+                            editTextDesc.setText(((TextView) getParentView().findViewById(R.id.description)).getText());
+                            switchAlarm.setChecked(((Switch) getParentView().findViewById(R.id.switchAlarm)).isChecked());
+                            switchDone.setChecked(((Switch) getParentView().findViewById(R.id.switchDone)).isChecked());
+
+                            setView(taskCrudView);
+                            setTitle(R.string.lbl_edit_task);
+                            setPositiveButton(R.string.lbl_save,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+
+                                            if(editTextDate.getText().toString().equals("") || editTextTime.getText().toString().equals("") ||
+                                                    editTextDesc.getText().toString().equals("")){
+
+                                                showToast(R.string.msgInvalidFields, Toast.LENGTH_LONG);
+                                            }else {
+                                                SimpleDateFormat sdfDate = getDatasource().getDateFormat();
+                                                SimpleDateFormat sdfTime = getDatasource().getTimeFormat();
+                                                Date time, date;
+
+                                                try {
+                                                    time = sdfTime.parse(editTextTime.getText().toString());
+                                                    date = sdfDate.parse(editTextDate.getText().toString());
+                                                    getTask().setDate(date);
+                                                    getTask().setTime(time);
+                                                    getTask().setDescription(editTextDesc.getText().toString());
+                                                    getTask().setAlarm(switchAlarm.isChecked());
+                                                    getTask().setDone(switchDone.isChecked());
+                                                    updateTask(getTask(), getContext());
+                                                    if (switchAlarm.isChecked()) {
+                                                        mAlarmTaskManager.setAlarm(getContext(), date, time);
+                                                    } else {
+                                                        if (mAlarmTaskManager.alarmExists(getContext(), date, time)) {
+                                                            mAlarmTaskManager.cancelAlarm(getContext(), date, time);
+                                                        }
+                                                    }
+                                                    dialog.cancel();
+                                                } catch (ParseException e) {
+                                                    //TODO
+                                                    //in case of a invalid string
+                                                    showToast(R.string.msgInvalidDate, Toast.LENGTH_LONG);
+                                                    Log.i("mine", e.getMessage());
+                                                }
+                                            }
+
+                                        }
+
+                                    })
+                                    .setNegativeButton(R.string.lbl_cancel,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+
+                                            })
+                                    .show();
+                        /** #############################################################**/
+                        /** on the other hand... id greater equals zero means a new task **/
+                        /** #############################################################**/
+                        }else{
+
+                            setParentView((View) getParentView().getParent());
+                            setView(taskCrudView);
+                            setTitle(R.string.lbl_new_task);
+                            setPositiveButton(R.string.lbl_add,
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            if(editTextDate.getText().toString().equals("") || editTextTime.getText().toString().equals("") ||
+                                                    editTextDesc.getText().toString().equals("")){
+
+                                                showToast(R.string.msgInvalidFields, Toast.LENGTH_LONG);
+
+                                            }else {
+                                                SimpleDateFormat sdfDate = getDatasource().getDateFormat();
+                                                SimpleDateFormat sdfTime = getDatasource().getTimeFormat();
+                                                Date time, date;
+                                                try {
+                                                    time = sdfTime.parse(editTextTime.getText().toString());
+                                                    date = sdfDate.parse(editTextDate.getText().toString());
+                                                    newTask.setDate(date);
+                                                    newTask.setTime(time);
+                                                    newTask.setDescription(editTextDesc.getText().toString());
+                                                    newTask.setDone(false);
+                                                    newTask.setAlarm(switchAlarm.isChecked());
+                                                    saveNewTask(newTask, getContext());
+                                                    if (switchAlarm.isChecked())
+                                                        mAlarmTaskManager.setAlarm(getContext(), date, time);
+                                                    dialog.cancel();
+                                                } catch (ParseException e) {
+                                                    //TODO
+                                                    //in case of a invalid string
+                                                    showToast(R.string.msgInvalidDate, Toast.LENGTH_LONG);
+                                                }
+                                            }
+
+                                        }
+
+                                    })
+                                    .setNegativeButton(R.string.lbl_cancel,
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    dialog.cancel();
+                                                }
+
+                                            })
+                                    .show();
+
+                        }
+                    }
+                }
+
+            );
+
+
+
+
     }
 
-    private void setAlarm(Date alarmDate, Date alarmTime){
-        Calendar cDate = Calendar.getInstance();
-        cDate.setTime(alarmDate);
+    public void showToast(int message, int length){
+        Toast toast = Toast.makeText(getContext(), getContext().getString(message), length);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
 
-        Calendar cTime = Calendar.getInstance();
-        cTime.setTime(alarmTime);
-
-        cDate.set(Calendar.HOUR_OF_DAY, cTime.get(Calendar.HOUR_OF_DAY));
-        cDate.set(Calendar.MINUTE, cTime.get(Calendar.MINUTE));
-
-        Long alarmLongTime = System.currentTimeMillis() + Util.dateDifference(new Date(), cDate.getTime());
-
-        // Get the AlarmManager Service
-        mAlarmManager = (AlarmManager) getParentView().getContext().getSystemService(Context.ALARM_SERVICE);
-
-        // Create an Intent to broadcast to the AlarmNotificationReceiver
-        mNotificationReceiverIntent = new Intent(getParentView().getContext(),
-                AlarmNotificationReceiver.class);
-        mNotificationReceiverIntent.putExtra("alarmTime", alarmTime);
-
-        // Create an PendingIntent that holds the NotificationReceiverIntent
-        mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(
-                getParentView().getContext(), 0, mNotificationReceiverIntent, 0);
-
-        // Create an Intent to broadcast to the AlarmLoggerReceiver
-        mLoggerReceiverIntent = new Intent(getParentView().getContext(),
-                AlarmLoggerReceiver.class);
-
-        // Create PendingIntent that holds the mLoggerReceiverPendingIntent
-        mLoggerReceiverPendingIntent = PendingIntent.getBroadcast(
-                getParentView().getContext(), 0, mLoggerReceiverIntent, 0);
-
-        mAlarmManager.set(AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + Util.dateDifference(new Date(), alarmDate),
-                mNotificationReceiverPendingIntent);
-    }
-
-    /*TODO: usar este metodo para implementar o delete e o update dos alarms*/
-
-    public boolean alarmExists(long alarmTime){
-        Intent intent = new Intent("com.my.package.MY_UNIQUE_ACTION");
-        intent.putExtra("alarmTime", alarmTime);
-
-        //getBroadcast with this FLAG_NO_CREATE will return null if the intent(and so the same alarm) already exists
-        boolean alarmUp = (PendingIntent.getBroadcast(context, 0,
-                intent, PendingIntent.FLAG_NO_CREATE) != null);
-
-        if (alarmUp)
-        {
-            Log.d(Util.debugTag, "Alarm is already active");
-            return true;
-        }
-        return false;
     }
 
     private void saveNewTask(RememberTask task, Context context) {
-
-        datasource.open();
+        //datasource.open();
         datasource.insertTask(task);
 
-
-        ListActivity mainActivity = (ListActivity) getParentView().getContext();
-        CustomListAdapter adapter = new CustomListAdapter(mainActivity, R.layout.list_item, datasource.getAllTasks());
-        mainActivity.setListAdapter(adapter);
-        mainActivity.getListView().invalidate();
+        MainActivity mainActivity = (MainActivity) getParentView().getContext();
+        mainActivity.updateList(datasource.getTasksByDate(mainActivity.getDateSelected()));
+        showToast(R.string.msgNewTaskSaved, Toast.LENGTH_LONG);
 
     }
 
     private void updateTask(RememberTask task, Context context) {
 
-        datasource.open();
+        //datasource.open();
         datasource.updateTask(task);
-        ListActivity mainActivity = (ListActivity) getParentView().getContext();
-        CustomListAdapter adapter = new CustomListAdapter(mainActivity, R.layout.list_item, datasource.getAllTasks());
-        mainActivity.setListAdapter(adapter);
-        mainActivity.getListView().invalidate();
+
+        MainActivity mainActivity = (MainActivity) getParentView().getContext();
+        mainActivity.updateList(datasource.getTasksByDate(mainActivity.getDateSelected()));
+        showToast(R.string.msgTaskSaved, Toast.LENGTH_LONG);
+    }
+
+    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        mHour = hourOfDay;
+        mMinute = minute;
+        txtTime.setText(new StringBuilder().append(Util.padInt(mHour)).append(":").append(Util.padInt(mMinute)));
 
     }
+
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        mDay = dayOfMonth;
+        mMonth = monthOfYear;
+        mYear = year;
+        txtDate.setText(new StringBuilder().append(mYear).append("-").append(Util.padInt(mMonth)).append("-").append(Util.padInt(mDay)));
+    }
+
+    public void showDatePickerDialog(View v) {
+        txtDate = (EditText) v;
+        DialogFragment newFragment = new DatePickerFragment(this);
+        MainActivity mainActivity = (MainActivity) getParentView().getContext();
+        newFragment.show(mainActivity.getFragmentManager(), "datePicker");
+    }
+
+    public void showTimePickerDialog(View v) {
+        txtTime = (EditText) v;
+        DialogFragment newFragment = new TimePickerFragment(this);
+        MainActivity mainActivity = (MainActivity) getParentView().getContext();
+        newFragment.show(mainActivity.getFragmentManager(), "timePicker");
+    }
+
+    @SuppressLint("ValidFragment")
+    public class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        private RememberTaskFormDialog dialog;
+        public DatePickerFragment(RememberTaskFormDialog dialog){
+            this.dialog = dialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            // Use the current date as the default date in the picker
+            final Calendar c = Calendar.getInstance();
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            dialog.onDateSet(view, year, month + 1, day);
+
+        }
+
+    }
+    @SuppressLint("ValidFragment")
+    public class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        private RememberTaskFormDialog dialog;
+        public TimePickerFragment(RememberTaskFormDialog dialog){
+            this.dialog = dialog;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+            // Use the current time as the default values for the picker
+            final Calendar c = Calendar.getInstance();
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    DateFormat.is24HourFormat(getActivity()));
+
+        }
+
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            dialog.onTimeSet(view, hourOfDay,
+                    minute);
+            //Log.i("MEUDEBUG",String.valueOf(hourOfDay) +  ":" + minute);
+        }
+
+       /* @Override
+        public void onDismiss(DialogInterface dialog){
+
+        }*/
+    }
+
 
     public RememberTask getTask() {
         return task;

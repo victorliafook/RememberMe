@@ -16,9 +16,10 @@ public class BdCore extends SQLiteOpenHelper{
     public static final String TASK_DATE = "i_date";
     public static final String TASK_TIME = "i_time";
     public static final String TASK_ALARM = "i_alarm";
+    public static final String TASK_DONE = "i_done";
     public static final String DATE_PATTERN = "yyyy-MM-dd";
     public static final String TIME_PATTERN = "HH:mm";
-    private static final int VERSION = 3;
+    private static final int VERSION = 4;
 
     // Database creation statement
     private static final String DATABASE_CREATE = "create table "
@@ -27,6 +28,7 @@ public class BdCore extends SQLiteOpenHelper{
             + " text not null," + TASK_DATE
             + " text not null," + TASK_TIME
             + " text not null, " + TASK_ALARM
+            + " integer not null," + TASK_DONE
             + " integer not null"
             + ");";
 

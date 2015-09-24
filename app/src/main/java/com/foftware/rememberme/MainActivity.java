@@ -1,69 +1,98 @@
 package com.foftware.rememberme;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
 import android.app.ListActivity;
-import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
-import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 
-public class MainActivity extends ListActivity implements
-        TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
+public class MainActivity extends ListActivity{
+    private static final int SWIPE_MIN_DISTANCE = 120;
+    private static final int SWIPE_MAX_OFF_PATH = 250;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+    private TextView txtNoTasks;
+    private TextView txtCurrentDate;
     private RememberTaskDAO datasource;
-    View editView;
-    private TextView txtDate;
-    private TextView txtTime;
-    private int mMinute;
-    private int mHour;
-    private int mDay;
-    private int mMonth;
-    private int mYear;
+    private AlarmTask alarmTaskManager;
+    private Date dateSelected = new Date();
+    private GestureDetector gestureDetector;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e){
+        return getListView().dispatchTouchEvent(e);
+
+    }
+
     private enum contextOptions{
         Edit,Delete;
     }
     private OnClickListenerCreateTask dialog;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        datasource = new RememberTaskDAO(this);
-        datasource.open();
+        setDatasource(new RememberTaskDAO(this));
+        getDatasource().open();
+        setAlarmTaskManager(new AlarmTask((AlarmManager)this.getSystemService(Context.ALARM_SERVICE)));
         setContentView(R.layout.activity_main);
+        //gestureDetector = new GestureDetector(this, this);
+
 
         final Button buttonCreateTask = (Button) findViewById(R.id.button_create_task);
+        setTxtNoTasks((TextView)findViewById(R.id.txtNoTasks));
+        setTxtCurrentDate((TextView)findViewById(R.id.txtCurrentDate));
 
-        dialog = new OnClickListenerCreateTask();
+        dialog = new OnClickListenerCreateTask(getDatasource());
 
         buttonCreateTask.setOnClickListener(dialog);
 
-        CustomListAdapter adapter = new CustomListAdapter(this, R.layout.list_item, datasource.getAllTasks());
-        setListAdapter(adapter);
+        new Thread(new Runnable(){
+            public void run(){
+                List<RememberTask> taskList;
+                taskList = getDatasource().getTasksByDate(getDateSelected());
+                if(taskList.size() < 1){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            showToast(R.string.msgNoTasksToday, Toast.LENGTH_LONG);
+                        }
+                    });
+                }
+                updateList(taskList);
+
+            }
+        }).start();
+
 
         ListView lv = getListView();
+        lv.setOnTouchListener(new SwipeGestureListener(MainActivity.this));
         //lv.setClickable(true);
         registerForContextMenu(lv);
         lv.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
@@ -85,23 +114,7 @@ public class MainActivity extends ListActivity implements
         lv.setTextFilterEnabled(true);
     }
 
-    // Callback called when user sets the time
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mHour = hourOfDay;
-        mMinute = minute;
-        txtTime.setText(new StringBuilder().append(Util.padInt(mHour)).append(":").append(Util.padInt(mMinute)));
 
-    }
-
-    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        mDay = dayOfMonth;
-        mMonth = monthOfYear;
-        mYear = year;
-        txtDate.setText(new StringBuilder().append(mYear).append("-").append(Util.padInt(mMonth)).append("-").append(Util.padInt(mDay)));
-
-
-    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -114,25 +127,25 @@ public class MainActivity extends ListActivity implements
         String[] items = getResources().getStringArray(R.array.contextmenu_items);
         RememberTask task = null;
         CustomListAdapter adapter = (CustomListAdapter)getListAdapter();
-        //ArrayAdapter<RememberTask> adapter = (ArrayAdapter<RememberTask>) getListAdapter();
 
         LayoutInflater inflater = this.getLayoutInflater();
-        LinearLayout itemView = (LinearLayout)inflater.inflate(R.layout.list_item, null);
+        LinearLayout itemView
+                ;
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         int index = info.position;
         itemView = (LinearLayout)info.targetView;
-        //LinearLayout itemView = (LinearLayout)info.targetView;
 
         switch (contextOptions.valueOf(item.getTitle().toString())){
             case Edit:
                 task = adapter.getItem(index);
+
                 //new OnClickListenerCreateTask().onClick(itemView);
-                new RememberTaskFormDialog(itemView, task, datasource);
+                new RememberTaskFormDialog(itemView, task, getDatasource());
                 break;
             case Delete:
                 if (getListAdapter().getCount() > 0) {
                     task = adapter.getItem(index);
-                    datasource.deleteTask( task.getId() );
+                    getDatasource().deleteTask(task.getId());
                     adapter.remove(task);
                 }
 
@@ -143,13 +156,6 @@ public class MainActivity extends ListActivity implements
         return true;
     }
 
-    /*public void onCreateContextMenu(final ContextMenu menu,
-                                    final View v, final ContextMenu.ContextMenuInfo menuInfo) {
-        if (v.getId()== getListView().getId()) {
-
-        }
-    }*/
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -157,12 +163,42 @@ public class MainActivity extends ListActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id){
+            case R.id.action_viewall:
+                setDateSelected(null);
+                List<RememberTask> list = getDatasource().getTasksByDate(getDateSelected());
+                updateList(list);
+
+                break;
+            case R.id.action_settings:
+                break;
+            case R.id.action_quit:
+                System.exit(1);
+                break;
+            case R.id.action_pickday:
+                DialogFragment newFragment = new DateDialog();
+                newFragment.show(getFragmentManager(), "dateDialog");
+                break;
+            default:
+            break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    //TODO
+    public void onDatePickSet(int year, int month, int day){
+
+        SimpleDateFormat sdf = getDatasource().getDateFormat();
+        try {
+            setDateSelected(sdf.parse("" + year + "-" + month + "-" + day));
+        }catch(Exception e){
+            setDateSelected(new Date());
+        }
+        List<RememberTask> list = getDatasource().getTasksByDate(getDateSelected());
+        if(list.size() < 1){
+            showToast(R.string.msgNoTasksThisDate, Toast.LENGTH_LONG);
+        }
+        updateList(list);
     }
 
     @Override
@@ -171,31 +207,86 @@ public class MainActivity extends ListActivity implements
         super.onResume();
     }
 
-    public void showDatePickerDialog(View v) {
-        txtDate = (EditText) v;
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(this.getFragmentManager(), "datePicker");
+    public void showToast(int message, int length){
+        Toast toast = Toast.makeText(this.getApplicationContext(), getString(message), length);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
+
     }
 
-    public void showTimePickerDialog(View v) {
-        txtTime = (EditText) v;
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(this.getFragmentManager(), "timePicker");
+    public void updateList(List<RememberTask> list){
+        Date currentDate = getDateSelected();
+        setTxtCurrentDate(getDateSelected());
+        if(list == null)
+            list = getDatasource().getTasksByDate(currentDate);
+        if(list.size() == 0) {
+            getTxtNoTasks().setVisibility(View.VISIBLE);
+
+        }else{
+            getTxtNoTasks().setVisibility(View.INVISIBLE);
+        }
+        CustomListAdapter adapter = new CustomListAdapter(this, R.layout.list_item, list);
+        this.setListAdapter(adapter);
+        this.getListView().invalidate();
     }
+
+    public TextView getTxtNoTasks() {
+        return txtNoTasks;
+    }
+
+    public void setTxtNoTasks(TextView txtNoTasks) {
+        this.txtNoTasks = txtNoTasks;
+    }
+
+    public TextView getTxtCurrentDate() {
+        return txtCurrentDate;
+    }
+
+    public void setTxtCurrentDate(TextView txtCurrentDate) {
+        this.txtCurrentDate = txtCurrentDate;
+    }
+
+    public void setTxtCurrentDate(Date date) {
+        if(date != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM");
+            this.txtCurrentDate.setText(sdf.format(date));
+        }else {
+            this.txtCurrentDate.setText("");
+        }
+    }
+
+    public Date getDateSelected() {
+        return dateSelected;
+    }
+
+    public void setDateSelected(Date dateSelected) {
+        this.dateSelected = dateSelected;
+    }
+
+    public RememberTaskDAO getDatasource() {
+        return datasource;
+    }
+
+    public void setDatasource(RememberTaskDAO datasource) {
+        this.datasource = datasource;
+    }
+
+    public AlarmTask getAlarmTaskManager() {
+        return alarmTaskManager;
+    }
+
+    public void setAlarmTaskManager(AlarmTask mAlarmTaskManager) {
+        this.alarmTaskManager = mAlarmTaskManager;
+    }
+
 
     @SuppressLint("ValidFragment")
-    public class DatePickerFragment extends DialogFragment
+    public class DateDialog extends DialogFragment
             implements DatePickerDialog.OnDateSetListener {
-
-       // private EditText txtDateTime;
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-           /* LayoutInflater inflater = getActivity().getLayoutInflater();
-            View view = inflater.inflate(R.layout.task_edit, null);
-            txtDateTime = (EditText) view.findViewById(R.id.txtTime);
-            */
             // Use the current date as the default date in the picker
             final Calendar c = Calendar.getInstance();
             int year = c.get(Calendar.YEAR);
@@ -206,48 +297,87 @@ public class MainActivity extends ListActivity implements
             return new DatePickerDialog(getActivity(), this, year, month, day);
         }
 
-
-
-
         public void onDateSet(DatePicker view, int year, int month, int day) {
-           ((DatePickerDialog.OnDateSetListener) getActivity()).onDateSet(view, year, month + 1, day);
+            ((MainActivity) getActivity()).onDatePickSet(year, month + 1, day);
 
         }
 
     }
-    @SuppressLint("ValidFragment")
-    public class TimePickerFragment extends DialogFragment
-            implements TimePickerDialog.OnTimeSetListener {
 
-        //EditText txtDateTime;
+    class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener implements
+            View.OnTouchListener {
+        Context context;
+        GestureDetector gDetector;
+
+        static final int SWIPE_MIN_DISTANCE = 120;
+        static final int SWIPE_MAX_OFF_PATH = 250;
+        static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+        public SwipeGestureListener() {
+            super();
+        }
+
+        public SwipeGestureListener(Context context) {
+            this(context, null);
+        }
+
+        public SwipeGestureListener(Context context, GestureDetector gDetector) {
+
+            if (gDetector == null)
+                gDetector = new GestureDetector(context, this);
+
+            this.context = context;
+            this.gDetector = gDetector;
+
+        }
+
         @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
 
-          /*  LayoutInflater inflater = getActivity().getLayoutInflater();
-            View view = inflater.inflate(R.layout.task_edit, null);
-            txtDateTime = (EditText) view.findViewById(R.id.txtTime);
-            */
-            // Use the current time as the default values for the picker
-            final Calendar c = Calendar.getInstance();
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int minute = c.get(Calendar.MINUTE);
+            //String countryName = (String) targetView.getItemAtPosition(position);
 
-            // Create a new instance of TimePickerDialog and return it
-            return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
+            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
+                if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH
+                        || Math.abs(velocityY) < SWIPE_THRESHOLD_VELOCITY) {
+                    return false;
+                }
+                if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+
+                } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
+
+                }
+            } else {
+                if (Math.abs(velocityX) < SWIPE_THRESHOLD_VELOCITY) {
+                    return false;
+                }
+                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
+                    //rtl
+                    MainActivity mainActivity = (MainActivity)context;
+                    mainActivity.setDateSelected(Util.addDaysToDate(mainActivity.getDateSelected(), 1));
+                    mainActivity.updateList(null);
+                } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
+                    //ltr
+                    MainActivity mainActivity = (MainActivity)context;
+                    mainActivity.setDateSelected(Util.addDaysToDate(mainActivity.getDateSelected(), -1));
+                    mainActivity.updateList(null);
+                }
+            }
+
+            return super.onFling(e1, e2, velocityX, velocityY);
+
         }
 
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            ((TimePickerDialog.OnTimeSetListener) getActivity()).onTimeSet(view, hourOfDay,
-                    minute);
-           //Log.i("MEUDEBUG",String.valueOf(hourOfDay) +  ":" + minute);
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            return gDetector.onTouchEvent(event);
         }
 
-        /*@Override
-        public void onDismiss(DialogInterface dialog){
-            CustomListAdapter adapter = new CustomListAdapter(getActivity(), R.layout.list_item, datasource.getAllTasks());
-            ((ListActivity)getActivity()).setListAdapter(adapter);
-            ((ListActivity)getActivity()).getListView().invalidate();
-        }*/
+        public GestureDetector getDetector() {
+            return gDetector;
+        }
+
     }
+
 }

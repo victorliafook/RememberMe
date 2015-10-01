@@ -20,7 +20,7 @@ public class AlarmTask {
         this.setAlarmManager(alarmManager);
     }
 
-    public void setAlarm(Context context, Date alarmDate, Date alarmTime){
+    public void setAlarm(Context context, Date alarmDate, Date alarmTime, String alarmText){
         Date date = Util.joinDateAndTime(alarmDate,alarmTime);
 
         if(date.before(new Date()))
@@ -32,6 +32,7 @@ public class AlarmTask {
         mNotificationReceiverIntent = new Intent(context,
                 AlarmNotificationReceiver.class);
         mNotificationReceiverIntent.putExtra("alarmTime", alarmLongTime);
+        mNotificationReceiverIntent.putExtra("alarmText", alarmText);
 
         // Create an PendingIntent that holds the NotificationReceiverIntent
         mNotificationReceiverPendingIntent = PendingIntent.getBroadcast(

@@ -1,5 +1,6 @@
 package com.foftware.rememberme;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -44,5 +45,16 @@ public class Util {
         calendar.setTime(date);
         calendar.add(Calendar.DAY_OF_YEAR, days);
         return calendar.getTime();
+    }
+
+    public static SimpleDateFormat getSystemDefaulDateFormat(){
+        SimpleDateFormat sdf = new SimpleDateFormat();
+
+        return sdf;
+    }
+
+    public static Date prepareDate(Date date){
+
+        return date;
     }
 }

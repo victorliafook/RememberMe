@@ -3,13 +3,14 @@ package com.foftware.rememberme;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import junit.framework.TestCase;
@@ -53,8 +54,9 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
         TextView txtDate = (TextView) rowView.findViewById(R.id.date);
         TextView txtTimeShow = (TextView) rowView.findViewById(R.id.timeShow);
         TextView txtTime = (TextView) rowView.findViewById(R.id.time);
-        final Switch swcDone = (Switch) rowView.findViewById(R.id.switchDone);
-        final Switch swcAlarm = (Switch) rowView.findViewById(R.id.switchAlarm);
+        final CheckBox chkDone = (CheckBox) rowView.findViewById(R.id.chkDone);
+        final CheckBox chkAlarm = (CheckBox) rowView.findViewById(R.id.chkAlarm);
+        ImageView imgClock = (ImageView) rowView.findViewById(R.id.imgClock);
 
 
 
@@ -75,11 +77,17 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
         final Boolean alarmOn = task.getAlarm();
 
         if(isDone != null)
-            swcDone.setChecked(isDone.booleanValue());
-        if(alarmOn != null)
-            swcAlarm.setChecked(alarmOn.booleanValue());
+            chkDone.setChecked(isDone.booleanValue());
+        if(alarmOn != null) {
+            chkAlarm.setChecked(alarmOn.booleanValue());
+            if(alarmOn.booleanValue()) {
+                imgClock.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_action_alarms_on));
+            }else {
+                imgClock.setImageBitmap(BitmapFactory.decodeResource(getContext().getResources(), R.drawable.ic_action_alarms));
+            }
+        }
 
-        swcDone.setOnClickListener(new View.OnClickListener() {
+        chkDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final View viewTarget;
@@ -89,9 +97,9 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
                     public void run() {
                         AlarmTask alarmTaskManager = ((MainActivity) context).getAlarmTaskManager();
 
-                        Switch switchView = (Switch) viewTarget;
+                        CheckBox checkView = (CheckBox) viewTarget;
                         View rowView;
-                        rowView = (View)viewTarget.getParent();
+                        rowView = (View)viewTarget.getParent().getParent();
                         TextView txtId = (TextView) rowView.findViewById(R.id.task_id);
                         TextView txtDate = (TextView) rowView.findViewById(R.id.date);
                         TextView txtTime = (TextView) rowView.findViewById(R.id.time);
@@ -111,11 +119,11 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
                         task.setId(Long.parseLong(txtId.getText().toString()));
                         task.setDate(date);
                         task.setTime(time);
-                        task.setAlarm(swcAlarm.isChecked());
+                        task.setAlarm(chkAlarm.isChecked());
                         task.setDescription(txtDesc.getText().toString());
 
-                        if(switchView.isChecked()){
-                            alarmTaskManager.setAlarm(context, date , time);
+                        if(checkView.isChecked()){
+                            alarmTaskManager.setAlarm(context, date , time, txtDesc.getText().toString());
                             task.setDone(true);
                             datasource.updateTask(task);
                         }else{

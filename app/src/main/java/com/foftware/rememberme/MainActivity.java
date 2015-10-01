@@ -335,7 +335,7 @@ public class MainActivity extends ListActivity{
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                float velocityY) {
 
-            //String countryName = (String) targetView.getItemAtPosition(position);
+
 
             if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
                 if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH

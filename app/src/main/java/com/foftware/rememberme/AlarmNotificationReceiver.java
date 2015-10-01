@@ -17,9 +17,9 @@ public class AlarmNotificationReceiver extends BroadcastReceiver {
 
     private static final int MY_NOTIFICATION_ID = 1;
     // Notification Text Elements
-    private final CharSequence tickerText = "Are you forgetting something?";
+    private final CharSequence tickerText = "Aren't you forgetting something?";
     private final CharSequence contentTitle = "RememberMe remembers YOU";
-    private final CharSequence contentText = "...";
+    private CharSequence contentText = "";
 
     // Notification Action Elements
     private Intent mNotificationIntent;
@@ -34,6 +34,7 @@ public class AlarmNotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        contentText = intent.getStringExtra("alarmText");
         // The Intent to be used when the user clicks on the Notification View
         mNotificationIntent = new Intent(context, MainActivity.class);
 

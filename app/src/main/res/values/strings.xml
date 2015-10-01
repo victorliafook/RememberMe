@@ -12,6 +12,11 @@
     <string name="lbl_save">Save it</string>
     <string name="lbl_delete">Delete it</string>
 
+    <string name="lbl_field_date">Date</string>
+    <string name="lbl_field_time">Time</string>
+    <string name="lbl_field_description">Description</string>
+    <string name="lbl_field_alarm">Alarm</string>
+
     <string name="msgNoTasks">There are no tasks yet.</string>
     <string name="msgNewTaskSaved">The task was created successfully!</string>
     <string name="msgTaskSaved">The task was saved!</string>

@@ -11,7 +11,7 @@
         android:layout_width="115dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Date"
+        android:text="@string/lbl_field_date"
         android:id="@+id/lblDate"
         android:layout_weight="0.03" />
 
@@ -28,7 +28,7 @@
         android:layout_width="115dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Time"
+        android:text="@string/lbl_field_time"
         android:id="@+id/lblTime"
         android:layout_weight="0.03" />
 
@@ -45,7 +45,7 @@
         android:layout_width="134dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Description"
+        android:text="@string/lbl_field_description"
         android:id="@+id/lblDescription"
         android:layout_weight="0.03" />
 
@@ -56,72 +56,33 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.06" />
 
-    <TableLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:id="@+id/table">
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+        <TextView
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/lbl_field_alarm"
+            android:id="@+id/lblAlarm"
+            android:layout_weight="0.03"
+            android:layout_gravity="center_horizontal"
+            android:layout_column="0" />
 
-            <TextView
-                android:layout_width="75dp"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Alarm"
-                android:id="@+id/lblAlarm"
-                android:layout_weight="0.03"
-                android:layout_gravity="center_horizontal"
-                android:layout_column="0" />
+        <CheckBox
+            android:layout_width="31dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/chkEditAlarm"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="0.06"
+            android:layout_column="2"
+            android:checked="true" />
 
-            <TextView
-                android:layout_width="31dp"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Off"
-                android:id="@+id/lblAlarmOff"
-                android:layout_weight="0.06"
-                android:layout_column="1" />
 
-            <Switch
-                android:layout_width="31dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/swcAlarm"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="0.06"
-                android:layout_column="2"
-                android:checked="true" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_width="31dp"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="On"
-                android:id="@+id/lblAlarmOn"
-                android:layout_weight="0.06"
-                android:layout_column="3" />
-        </TableRow>
 
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical">
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-        </TableRow>
-    </TableLayout>
 
 </LinearLayout>

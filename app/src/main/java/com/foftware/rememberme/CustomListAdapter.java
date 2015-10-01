@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,6 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
 
     public CustomListAdapter(Activity context, int resource, List<RememberTask> tasks) {
         super(context, resource, tasks);
-        // TODO Auto-generated constructor stub
 
         this.context = context;
         this.datasource = ((MainActivity) context).getDatasource();
@@ -112,7 +112,7 @@ public class CustomListAdapter extends ArrayAdapter<RememberTask> {
                             date = sdfDate.parse(txtDate.getText().toString());
                             time = sdfTime.parse(txtTime.getText().toString());
                         }catch(Exception e){
-                            //TODO log
+                            Log.i(Util.debugTag, e.getMessage());
                         }
 
                         RememberTask task = new RememberTask();

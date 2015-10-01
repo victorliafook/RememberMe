@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">RememberMe</string>
+    <string name="menu_label">RememberMe</string>
+    <string name="menu_selectday_label">Seleccione una fecha</string>
+    <string name="action_viewall">Ver todos las tareas</string>
+    <string name="action_settings">Ajustes</string>
+    <string name="action_quit">Cerrar</string>
+    <string name="lbl_new_task">Crear una tarea</string>
+    <string name="lbl_edit_task">Modificar una tarea</string>
+    <string name="lbl_add">Añadir</string>
+    <string name="lbl_cancel">Anular</string>
+    <string name="lbl_save">Guardar</string>
+    <string name="lbl_delete">Eliminar</string>
+
+    <string name="msgNoTasks">No tienes tareas</string>
+    <string name="msgNewTaskSaved">Tarea creada correctamente</string>
+    <string name="msgTaskSaved">Tarea guardada!</string>
+    <string name="msgInvalidDate">Lo sentimos, no ha introducido una fecha válida :[</string>
+    <string name="msgInvalidFields">Lo sentimos, debe rellenar todos los campos :[</string>
+    <string name="msgNoTasksToday">No tiene tareas programadas para hoy...</string>
+    <string name="msgNoTasksThisDate">No tiene tareas para esta fecha.</string>
+</resources>

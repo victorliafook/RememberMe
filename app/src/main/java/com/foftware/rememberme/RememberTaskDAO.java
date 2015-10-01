@@ -5,8 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -164,6 +164,7 @@ public class RememberTaskDAO {
         }catch(ParseException ex){
             date = new Date();
             time = new Date();
+            Log.i(Util.debugTag, ex.getMessage());
         }
 
         task.setDate(date);

@@ -110,7 +110,8 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
                              try{
                                 dateSet = datasource.getDateFormat().parse(((TextView) getParentView().findViewById(R.id.date)).getText().toString());
                             }catch(Exception e){
-                                dateSet = new Date();
+                                 dateSet = new Date();
+                                 Log.i(Util.debugTag, e.getMessage());
                             }
 
                             setTxtDateText(dateSet);
@@ -153,10 +154,9 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
                                                     }
                                                     dialog.cancel();
                                                 } catch (ParseException e) {
-                                                    //TODO
-                                                    //in case of a invalid string
+
                                                     showToast(R.string.msgInvalidDate, Toast.LENGTH_LONG);
-                                                    Log.i("mine", e.getMessage());
+                                                    Log.i(Util.debugTag, e.getMessage());
                                                 }
                                             }
 
@@ -204,9 +204,9 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
                                                         mAlarmTaskManager.setAlarm(getContext(), dateSet, time, editTextDesc.getText().toString());
                                                     dialog.cancel();
                                                 } catch (ParseException e) {
-                                                    //TODO
-                                                    //in case of a invalid string
+
                                                     showToast(R.string.msgInvalidDate, Toast.LENGTH_LONG);
+                                                    Log.i(Util.debugTag, e.getMessage());
                                                 }
                                             }
 
@@ -241,7 +241,6 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
     }
 
     private void saveNewTask(RememberTask task, Context context) {
-        //datasource.open();
         datasource.insertTask(task);
 
         MainActivity mainActivity = (MainActivity) getParentView().getContext();
@@ -251,8 +250,6 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
     }
 
     private void updateTask(RememberTask task, Context context) {
-
-        //datasource.open();
         datasource.updateTask(task);
 
         MainActivity mainActivity = (MainActivity) getParentView().getContext();
@@ -261,32 +258,27 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
     }
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        mHour = hourOfDay;
-        mMinute = minute;
-        txtTime.setText(new StringBuilder().append(Util.padInt(mHour)).append(":").append(Util.padInt(mMinute)));
+
+        txtTime.setText(new StringBuilder().append(Util.padInt(hourOfDay)).append(":").append(Util.padInt(minute)));
 
     }
 
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        mDay = dayOfMonth;
-        mMonth = monthOfYear;
-        mYear = year;
-
         try{
-            dateSet = datasource.getDateFormat().parse(mYear + "-" + mMonth + "-" + mDay);
+            dateSet = datasource.getDateFormat().parse(year + "-" + monthOfYear + "-" + dayOfMonth);
         }catch(Exception e){
             dateSet = new Date();
+            Log.i(Util.debugTag, e.getMessage());
         }
         setTxtDateText(dateSet);
     }
 
     public void showDatePickerDialog(View v) {
-        //txtDate = (EditText) v;
         Date initialDate = null;
         try{
             initialDate = datasource.getDateFormat().parse(((EditText) v).getText().toString());
         }catch(Exception e){
-
+            Log.i(Util.debugTag, e.getMessage());
         }
         DialogFragment newFragment = new DatePickerFragment(this, initialDate);
         MainActivity mainActivity = (MainActivity) getParentView().getContext();
@@ -294,7 +286,7 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
     }
 
     public void showTimePickerDialog(View v) {
-        //txtTime = (EditText) v;
+
         DialogFragment newFragment = new TimePickerFragment(this);
         MainActivity mainActivity = (MainActivity) getParentView().getContext();
         newFragment.show(mainActivity.getFragmentManager(), "timePicker");
@@ -319,10 +311,6 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
             this.initialDate = date;
         }
 
-        /*public DatePickerFragment(RememberTaskFormDialog dialog){
-            this.dialog = dialog;
-
-        }*/
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -372,7 +360,7 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             dialog.onTimeSet(view, hourOfDay,
                     minute);
-            //Log.i("MEUDEBUG",String.valueOf(hourOfDay) +  ":" + minute);
+
         }
 
        /* @Override

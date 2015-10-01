@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">RememberMe</string>
+    <string name="menu_label">RememberMe</string>
+    <string name="menu_selectday_label">Selecione uma data</string>
+    <string name="action_viewall">Ver todos os compromissos</string>
+    <string name="action_settings">Configurações</string>
+    <string name="action_quit">Fechar</string>
+    <string name="lbl_new_task">Criar novo compromisso</string>
+    <string name="lbl_edit_task">Modificar compromisso</string>
+    <string name="lbl_add">Adicionar</string>
+    <string name="lbl_cancel">Cancelar</string>
+    <string name="lbl_save">Salvar</string>
+    <string name="lbl_delete">Apagar</string>
+
+
+    <string name="lbl_field_date">Data</string>
+    <string name="lbl_field_time">Hora</string>
+    <string name="lbl_field_description">Descrição</string>
+    <string name="lbl_field_alarm">Alarmar</string>
+
+
+    <string name="msgNoTasks">Você ainda não tem compromissos</string>
+    <string name="msgNewTaskSaved">Compromisso criado com sucesso!</string>
+    <string name="msgTaskSaved">Compromisso salvo!</string>
+    <string name="msgInvalidDate">Desculpe, você não inseriu uma data válida :[</string>
+    <string name="msgInvalidFields">Desculpe, você deve preencher todos os campos :[</string>
+    <string name="msgNoTasksToday">Você ainda não tem compromissos marcados para hoje...</string>
+    <string name="msgNoTasksThisDate">Você não tem compromissos para esta data ainda.</string>
+</resources>

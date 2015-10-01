@@ -9,6 +9,7 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -193,6 +194,7 @@ public class MainActivity extends ListActivity{
             setDateSelected(sdf.parse("" + year + "-" + month + "-" + day));
         }catch(Exception e){
             setDateSelected(new Date());
+            Log.i(Util.debugTag, e.getMessage());
         }
         List<RememberTask> list = getDatasource().getTasksByDate(getDateSelected());
         if(list.size() < 1){

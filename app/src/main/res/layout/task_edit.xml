@@ -54,7 +54,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/txtDescription"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.06" />
+        android:layout_weight="0.06"
+        android:singleLine="true"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"

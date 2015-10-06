@@ -11,7 +11,7 @@
     <string name="lbl_cancel">Cancelar</string>
     <string name="lbl_save">Salvar</string>
     <string name="lbl_delete">Apagar</string>
-
+    <string name="lbl_edit">Modificar</string>
 
     <string name="lbl_field_date">Data</string>
     <string name="lbl_field_time">Hora</string>

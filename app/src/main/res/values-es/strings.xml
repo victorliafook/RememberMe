@@ -11,6 +11,12 @@
     <string name="lbl_cancel">Anular</string>
     <string name="lbl_save">Guardar</string>
     <string name="lbl_delete">Eliminar</string>
+    <string name="lbl_edit">Modificar</string>
+
+    <string name="lbl_field_date">Fecha</string>
+    <string name="lbl_field_time">Hora</string>
+    <string name="lbl_field_description">Descripción</string>
+    <string name="lbl_field_alarm">Alarma</string>
 
     <string name="msgNoTasks">No tienes tareas</string>
     <string name="msgNewTaskSaved">Tarea creada correctamente</string>

@@ -129,7 +129,7 @@ public class RememberTaskFormDialog extends AlertDialog.Builder{
                                         public void onClick(DialogInterface dialog, int id) {
 
                                             if(txtDate.getText().toString().equals("") || txtTime.getText().toString().equals("") ||
-                                                    editTextDesc.getText().toString().equals("")){
+                                                    editTextDesc.getText().toString().trim().equals("")){
 
                                                 showToast(R.string.msgInvalidFields, Toast.LENGTH_LONG);
                                             }else {

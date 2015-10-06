@@ -11,6 +11,7 @@
     <string name="lbl_cancel">Cancel</string>
     <string name="lbl_save">Save it</string>
     <string name="lbl_delete">Delete it</string>
+    <string name="lbl_edit">Edit</string>
 
     <string name="lbl_field_date">Date</string>
     <string name="lbl_field_time">Time</string>
